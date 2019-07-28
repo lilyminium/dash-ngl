@@ -34,10 +34,38 @@ export default class NGLComponent extends Component {
 
     componentDidMount() {
         // third step
-        const { files, id, stageParameters } = this.props;
+        const { data, id, stageParameters } = this.props;
         const stage = new Stage(id, stageParameters);
 
-        this.setState({ stage })
+        this.setState({ stage }, () => {
+            if (!data) {
+                return
+            }
+
+
+            if (Array.isArray(data)) {
+                data.forEach(file => {
+                    this.loadData(file);
+                });
+            } else {
+                this.loadData(data);
+            }
+
+        });
+
+
+        stage.signals.clicked.add((proxy) => {
+            if (proxy) {
+                this.props.setProps({ selectedAtomIndices: proxy.component.selectedAtomIndices })
+            } // will proxy pass through? idk. Will indices update before clicked signal?
+
+        })
+
+    }
+
+    componentDidUpdate() {
+        // after updating occurs
+        const { files } = this.props;
 
         if (!files) {
             return
@@ -50,67 +78,80 @@ export default class NGLComponent extends Component {
         } else {
             this.loadFile(files);
         }
-
-        stage.signals.clicked.add((proxy) => { // will proxy pass through? idk. Will indices update before clicked signal?
-            this.setProps({ selectedAtomIndices: proxy.component.selectedAtomIndices })
-        })
-
-    }
-
-    componentDidUpdate() {
-        // after updating occurs
     }
 
     _loadComponent(comp) {
         const { components } = this.state;
+        const atomStore = comp.structureView.structure.atomStore;
 
-        this.setProps({
+        this.props.setProps({
             activeComponentUUID: comp.uuid,
-            activeCoordinates: comp.matrix
+            activeCoordinates: [atomStore.x, atomStore.y, atomStore.z],
         })
         components[comp.uuid] = comp;
 
         comp.signals.matrixChanged.add(() => {
-            this.setProps({
+
+            this.props.setProps({
                 activeComponentUUID: comp.uuid,
-                activeCoordinates: comp.matrix
+                activeCoordinates: [atomStore.x, atomStore.y, atomStore.z]
             })
         })
 
         comp.signals.trajectoryAdded.add((trajComp) => {
-            trajComp.trajectory.signals.frameChanged.add(() => this.setProps({
-                activeComponentUUID: comp.uuid,
-                activeCoordinates: comp.matrix
-            })
-            )
-        })
-    }
-
-    loadFile(file) {
-        const { stage } = this.state;
-
-        if (!file.config) {
-            stage.loadFile(file.filename, { defaultRepresentation: true }).then(comp => {
-                this._loadComponent(comp)
-            });
-        } else {
-            stage.loadFile(file.filename).then(comp => {
-                file.config.forEach(configItem => {
-                    if (Array.isArray(configItem.input)) {
-                        comp[configItem.type](...configItem.input);
-                    } else {
-                        comp[configItem.type](configItem.input);
-                    }
+            trajComp.trajectory.signals.frameChanged.add(() => {
+                const atomStoreT = trajComp.structure.atomStore;
+                this.props.setProps({
+                    activeComponentUUID: comp.uuid,
+                    activeCoordinates: [atomStoreT.x, atomStoreT.y, atomStoreT.z]
                 });
-
-                if (!file.config.some(configItem => configItem.type === 'autoView')) {
-                    comp.autoView();
-                }
-
-                this._loadComponent(comp)
             });
-        }
+        })
+
+        comp.addRepresentation('ball+stick')
+        comp.autoView()
     }
+
+    loadData(data) {
+        const { stage } = this.state;
+        if (!data.config) {
+            return
+        }
+        var stringBlob = new Blob([data.config.input], { type: data.config.type })
+        console.log(stringBlob)
+        stage.loadFile(stringBlob, { ext: data.ext }).then(comp => {
+            this._loadComponent(comp)
+
+        })
+
+    }
+
+    // loadFile(file) {
+    //     const { stage } = this.state;
+
+    //     if (!file.config) {
+    //         stage.loadFile(file.filename, { defaultRepresentation: true }).then(comp => {
+    //             this._loadComponent(comp)
+    //             comp.autoView()
+    //         });
+    //     } else {
+    //         stage.loadFile(file.filename).then(comp => {
+    //             file.config.forEach(configItem => {
+    //                 if (Array.isArray(configItem.input)) {
+    //                     comp[configItem.type](...configItem.input);
+    //                 } else {
+    //                     comp[configItem.type](configItem.input);
+    //                 }
+    //             });
+
+    //             // if (!file.config.some(configItem => configItem.type === 'autoView')) {
+    //             //     comp.autoView();
+    //             // }
+
+    //             this._loadComponent(comp)
+    //         });
+    //     }
+    // }
 
     addRepresentation(repr, params = {}, hidden = false, componentName = undefined) {
         const { components, activeComponent } = this.state;
@@ -176,6 +217,7 @@ NGLComponent.defaultProps = {
 
 const dataPropShape = {
     filename: PropTypes.string.isRequired,
+    ext: PropTypes.string,
     config: PropTypes.arrayOf(
         PropTypes.shape({
             type: PropTypes.string.isRequired,
@@ -205,7 +247,7 @@ NGLComponent.propTypes = {
      */
     viewportStyle: PropTypes.object,
     stageParameters: PropTypes.object,
-    files: PropTypes.oneOfType([
+    data: PropTypes.oneOfType([
         PropTypes.arrayOf(PropTypes.shape(dataPropShape)),
         PropTypes.shape(dataPropShape)
     ]),

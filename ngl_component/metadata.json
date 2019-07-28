@@ -30,6 +30,18 @@
         "returns": null
       },
       {
+        "name": "loadData",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "data",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
         "name": "loadFile",
         "docblock": null,
         "modifiers": [],
@@ -119,7 +131,7 @@
           "computed": false
         }
       },
-      "files": {
+      "data": {
         "type": {
           "name": "union",
           "value": [
@@ -131,6 +143,10 @@
                   "filename": {
                     "name": "string",
                     "required": true
+                  },
+                  "ext": {
+                    "name": "string",
+                    "required": false
                   },
                   "config": {
                     "name": "arrayOf",
@@ -169,6 +185,10 @@
                 "filename": {
                   "name": "string",
                   "required": true
+                },
+                "ext": {
+                  "name": "string",
+                  "required": false
                 },
                 "config": {
                   "name": "arrayOf",
