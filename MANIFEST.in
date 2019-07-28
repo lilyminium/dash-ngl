@@ -1,0 +1,5 @@
+include ngl_component/ngl_component.min.js
+include ngl_component/ngl_component.dev.js
+include ngl_component/metadata.json
+include ngl_component/package.json
+include README.md
