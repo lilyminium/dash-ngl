@@ -15,7 +15,10 @@ Keyword arguments:
 Those keys have the following types:
   - filename (string; required)
   - ext (string; optional)
-  - config (list; optional)
+  - config (optional): . config has the following type: dict containing keys 'type', 'input'.
+Those keys have the following types:
+  - type (string; required)
+  - input (list | dict | string; optional)
 - activeComponentUUID (string; optional)
 - activeCoordinates (list; optional)
 - selectedAtomIndices (list; optional)

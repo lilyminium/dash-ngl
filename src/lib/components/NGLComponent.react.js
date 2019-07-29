@@ -54,12 +54,14 @@ export default class NGLComponent extends Component {
         });
 
 
-        stage.signals.clicked.add((proxy) => {
-            if (proxy) {
-                this.props.setProps({ selectedAtomIndices: proxy.component.selectedAtomIndices })
-            } // will proxy pass through? idk. Will indices update before clicked signal?
+        // stage.signals.clicked.add((proxy) => {
+        //     console.log('clicked')
+        //     console.log(proxy)
+        //     if (proxy) {
+        //         this.props.setProps({ selectedAtomIndices: proxy.component.selectedAtomIndices })
+        //     } // will proxy pass through? idk. Will indices update before clicked signal?
 
-        })
+        // })
 
     }
 
@@ -80,32 +82,40 @@ export default class NGLComponent extends Component {
         }
     }
 
+    _updateCoordinates(atomStore, comp) {
+        if (comp !== undefined) {
+            this.props.setProps({
+                activeComponentUUID: comp.uuid
+            })
+        }
+
+        this.props.setProps({
+            activeCoordinates: [atomStore.x, atomStore.y, atomStore.z]
+        });
+    }
+
     _loadComponent(comp) {
         const { components } = this.state;
         const atomStore = comp.structureView.structure.atomStore;
 
-        this.props.setProps({
-            activeComponentUUID: comp.uuid,
-            activeCoordinates: [atomStore.x, atomStore.y, atomStore.z],
-        })
         components[comp.uuid] = comp;
 
-        comp.signals.matrixChanged.add(() => {
+        this._updateCoordinates(atomStore, comp)
 
-            this.props.setProps({
-                activeComponentUUID: comp.uuid,
-                activeCoordinates: [atomStore.x, atomStore.y, atomStore.z]
-            })
+        comp.signals.matrixChanged.add(() => {
+            this._updateCoordinates(atomStore, comp)
         })
 
         comp.signals.trajectoryAdded.add((trajComp) => {
             trajComp.trajectory.signals.frameChanged.add(() => {
-                const atomStoreT = trajComp.structure.atomStore;
-                this.props.setProps({
-                    activeComponentUUID: comp.uuid,
-                    activeCoordinates: [atomStoreT.x, atomStoreT.y, atomStoreT.z]
-                });
+                this._updateCoordinates(trajComp.structure.atomStore, comp)
             });
+        })
+
+        comp.signals.selectedAtomIndicesChanged.add((indices) => {
+            this.props.setProps({
+                selectedAtomIndices: indices
+            })
         })
 
         comp.addRepresentation('ball+stick')
@@ -218,16 +228,15 @@ NGLComponent.defaultProps = {
 const dataPropShape = {
     filename: PropTypes.string.isRequired,
     ext: PropTypes.string,
-    config: PropTypes.arrayOf(
-        PropTypes.shape({
-            type: PropTypes.string.isRequired,
-            input: PropTypes.oneOfType([
-                PropTypes.array,
-                PropTypes.object,
-                PropTypes.string
-            ])
-        })
-    )
+    config: PropTypes.shape({
+        type: PropTypes.string.isRequired,
+        input: PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.object,
+            PropTypes.string
+        ])
+    })
+
 };
 
 NGLComponent.propTypes = {

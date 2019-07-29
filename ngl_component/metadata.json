@@ -18,6 +18,22 @@
         "returns": null
       },
       {
+        "name": "_updateCoordinates",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "atomStore",
+            "type": null
+          },
+          {
+            "name": "comp",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
         "name": "_loadComponent",
         "docblock": null,
         "modifiers": [],
@@ -36,18 +52,6 @@
         "params": [
           {
             "name": "data",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "loadFile",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "file",
             "type": null
           }
         ],
@@ -149,50 +153,6 @@
                     "required": false
                   },
                   "config": {
-                    "name": "arrayOf",
-                    "value": {
-                      "name": "shape",
-                      "value": {
-                        "type": {
-                          "name": "string",
-                          "required": true
-                        },
-                        "input": {
-                          "name": "union",
-                          "value": [
-                            {
-                              "name": "array"
-                            },
-                            {
-                              "name": "object"
-                            },
-                            {
-                              "name": "string"
-                            }
-                          ],
-                          "required": false
-                        }
-                      }
-                    },
-                    "required": false
-                  }
-                }
-              }
-            },
-            {
-              "name": "shape",
-              "value": {
-                "filename": {
-                  "name": "string",
-                  "required": true
-                },
-                "ext": {
-                  "name": "string",
-                  "required": false
-                },
-                "config": {
-                  "name": "arrayOf",
-                  "value": {
                     "name": "shape",
                     "value": {
                       "type": {
@@ -214,6 +174,44 @@
                         ],
                         "required": false
                       }
+                    },
+                    "required": false
+                  }
+                }
+              }
+            },
+            {
+              "name": "shape",
+              "value": {
+                "filename": {
+                  "name": "string",
+                  "required": true
+                },
+                "ext": {
+                  "name": "string",
+                  "required": false
+                },
+                "config": {
+                  "name": "shape",
+                  "value": {
+                    "type": {
+                      "name": "string",
+                      "required": true
+                    },
+                    "input": {
+                      "name": "union",
+                      "value": [
+                        {
+                          "name": "array"
+                        },
+                        {
+                          "name": "object"
+                        },
+                        {
+                          "name": "string"
+                        }
+                      ],
+                      "required": false
                     }
                   },
                   "required": false
