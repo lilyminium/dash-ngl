@@ -1,6 +1,6 @@
 {
   "src/lib/components/NGLComponent.react.js": {
-    "description": "",
+    "description": "Component for NGL.Stage",
     "displayName": "NGLComponent",
     "methods": [
       {
@@ -23,10 +23,50 @@
         "returns": null
       },
       {
+        "name": "executeQueuedAction",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "funcName",
+            "type": null
+          },
+          {
+            "name": "args",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
         "name": "refreshStage",
         "docblock": null,
         "modifiers": [],
         "params": [],
+        "returns": null
+      },
+      {
+        "name": "setActiveComponentByUUID",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "uuid",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "getMainRepresentations",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "comp",
+            "type": null
+          }
+        ],
         "returns": null
       },
       {
@@ -58,7 +98,19 @@
         "returns": null
       },
       {
-        "name": "_loadComponent",
+        "name": "loadComponent",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "comp",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "addHighlightRepresentation",
         "docblock": null,
         "modifiers": [],
         "params": [
@@ -81,6 +133,78 @@
           {
             "name": "params",
             "type": null
+          },
+          {
+            "name": "index",
+            "type": null
+          },
+          {
+            "name": "suppressProps",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "removeRepresentationByName",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "name",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "removeRepresentationByIndex",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "index",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "updateRepresentationTypeByIndex",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "index",
+            "type": null
+          },
+          {
+            "name": "newType",
+            "type": null
+          },
+          {
+            "name": "asQueuedAction",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "updateRepresentationParamsByIndex",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "index",
+            "type": null
+          },
+          {
+            "name": "params",
+            "type": null
+          },
+          {
+            "name": "asQueuedAction",
+            "type": null
           }
         ],
         "returns": null
@@ -91,7 +215,7 @@
         "modifiers": [],
         "params": [
           {
-            "name": "what",
+            "name": "params",
             "type": null
           }
         ],
@@ -312,7 +436,7 @@
           "computed": false
         }
       },
-      "highlightStyle": {
+      "highlightParameters": {
         "type": {
           "name": "object"
         },
@@ -333,6 +457,77 @@
           "value": "0",
           "computed": false
         }
+      },
+      "queuedAction": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Action to take",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "currentRepresentationParameters": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "type": {
+                "name": "string",
+                "required": true
+              },
+              "params": {
+                "name": "object",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "Representation parameters of active component",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "addRepresentationParams": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "shape",
+              "value": {
+                "type": {
+                  "name": "string",
+                  "required": true
+                },
+                "params": {
+                  "name": "object",
+                  "required": false
+                }
+              }
+            },
+            {
+              "name": "object"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Representation to add",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "deleteRepresentationIndex": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Representation to delete"
       }
     }
   }

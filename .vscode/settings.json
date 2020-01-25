@@ -1,6 +1,7 @@
 {
-    "python.pythonPath": "/Users/lily/anaconda3/envs/ccdash/bin/python",
-    "python.linting.pylintEnabled": false,
-    "python.linting.pycodestyleEnabled": true,
-    "python.linting.enabled": true
+    "python.pythonPath": "/Users/lily/anaconda3/envs/dash-ngl/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.pycodestyleEnabled": false,
+    "python.linting.enabled": true,
+    "editor.formatOnSave": true
 }

@@ -5,7 +5,7 @@ from dash.development.base_component import Component, _explicitize_args
 
 class NGLComponent(Component):
     """A NGLComponent component.
-
+Component for NGL.Stage
 
 Keyword arguments:
 - id (string; default 'viewport'): The ID used to identify this component in Dash callbacks
@@ -57,21 +57,31 @@ Those keys have the following types:
 - selectedAtomIndices (list of numbers; optional): Indices of the selected atoms
 - highlightAtomsOnClick (boolean; default False): Whether to highlight atoms on click
 - highlightName (string; default 'highlighted'): Current name for highlighted representations
-- highlightStyle (dict; default {
+- highlightParameters (dict; default {
     opacity: 0.5,
     bondScale: 1.4,
     scale: 1.4,
     colorScheme: 'uniform',
     color: '#fff'
 }): Style for highlight representations
-- numberOfComponents (number; default 0): Number of components loaded"""
+- numberOfComponents (number; default 0): Number of components loaded
+- queuedAction (dict; optional): Action to take
+- currentRepresentationParameters (dict; optional): Representation parameters of active component. currentRepresentationParameters has the following type: list of dicts containing keys 'type', 'params'.
+Those keys have the following types:
+  - type (string; required)
+  - params (dict; optional)
+- addRepresentationParams (dict; optional): Representation to add. addRepresentationParams has the following type: dict containing keys 'type', 'params'.
+Those keys have the following types:
+  - type (string; required)
+  - params (dict; optional) | dict
+- deleteRepresentationIndex (number; optional): Representation to delete"""
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, viewportStyle=Component.UNDEFINED, stageParameters=Component.UNDEFINED, data=Component.UNDEFINED, activeComponentUUID=Component.UNDEFINED, selectedAtomIndices=Component.UNDEFINED, highlightAtomsOnClick=Component.UNDEFINED, highlightName=Component.UNDEFINED, highlightStyle=Component.UNDEFINED, numberOfComponents=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'viewportStyle', 'stageParameters', 'data', 'activeComponentUUID', 'selectedAtomIndices', 'highlightAtomsOnClick', 'highlightName', 'highlightStyle', 'numberOfComponents']
+    def __init__(self, id=Component.UNDEFINED, viewportStyle=Component.UNDEFINED, stageParameters=Component.UNDEFINED, data=Component.UNDEFINED, activeComponentUUID=Component.UNDEFINED, selectedAtomIndices=Component.UNDEFINED, highlightAtomsOnClick=Component.UNDEFINED, highlightName=Component.UNDEFINED, highlightParameters=Component.UNDEFINED, numberOfComponents=Component.UNDEFINED, queuedAction=Component.UNDEFINED, currentRepresentationParameters=Component.UNDEFINED, addRepresentationParams=Component.UNDEFINED, deleteRepresentationIndex=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['id', 'viewportStyle', 'stageParameters', 'data', 'activeComponentUUID', 'selectedAtomIndices', 'highlightAtomsOnClick', 'highlightName', 'highlightParameters', 'numberOfComponents', 'queuedAction', 'currentRepresentationParameters', 'addRepresentationParams', 'deleteRepresentationIndex']
         self._type = 'NGLComponent'
         self._namespace = 'ngl_component'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'viewportStyle', 'stageParameters', 'data', 'activeComponentUUID', 'selectedAtomIndices', 'highlightAtomsOnClick', 'highlightName', 'highlightStyle', 'numberOfComponents']
+        self.available_properties = ['id', 'viewportStyle', 'stageParameters', 'data', 'activeComponentUUID', 'selectedAtomIndices', 'highlightAtomsOnClick', 'highlightName', 'highlightParameters', 'numberOfComponents', 'queuedAction', 'currentRepresentationParameters', 'addRepresentationParams', 'deleteRepresentationIndex']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')
