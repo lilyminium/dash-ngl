@@ -36,7 +36,7 @@ Keyword arguments:
     ambientIntensity: 0.2,
     hoverTimeout: 0,
     tooltip: true,
-    mousePreset: 'default'
+    mousePreset: 'default',
 }): Parameters for the stage
 - data (dict; optional): File object to load into the stage. data has the following type: list of dicts containing keys 'filename', 'ext', 'config'.
 Those keys have the following types:
@@ -62,7 +62,7 @@ Those keys have the following types:
     bondScale: 1.4,
     scale: 1.4,
     colorScheme: 'uniform',
-    color: '#fff'
+    color: '#fff',
 }): Style for highlight representations
 - numberOfComponents (number; default 0): Number of components loaded
 - queuedAction (dict; optional): Action to take

@@ -1,13 +1,12 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Stage } from 'ngl';
+import {Stage} from 'ngl';
 
 /**
  * Component for NGL.Stage
  */
 
 export default class NGLComponent extends Component {
-
     constructor(props) {
         super(props);
 
@@ -21,11 +20,9 @@ export default class NGLComponent extends Component {
     }
 
     render() {
-        const { id, viewportStyle } = this.props;
-        const style = { ...defaultViewportStyle, ...viewportStyle };
-        return (
-            <div id={id} style={style} />
-        );
+        const {id, viewportStyle} = this.props;
+        const style = {...defaultViewportStyle, ...viewportStyle};
+        return <div id={id} style={style} />;
     }
 
     componentDidMount() {
@@ -41,31 +38,43 @@ export default class NGLComponent extends Component {
         // create Stage and add mouse events
         // should only be called once after component is mounted
 
-        const { id, stageParameters } = this.props;
-        const parameters = { ...defaultStageParameters, ...stageParameters };
+        const {id, stageParameters} = this.props;
+        const parameters = {...defaultStageParameters, ...stageParameters};
 
         const stage = new Stage(id, parameters);
         this.stage = stage;
 
         // add mouse events
-        this.stage.viewer.container.addEventListener('dragover', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-        }, false);
-        this.stage.viewer.container.addEventListener('drop', this.onDrop, false);
-        document.addEventListener('dragover', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'none';
-        }, false);
+        this.stage.viewer.container.addEventListener(
+            'dragover',
+            function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            },
+            false
+        );
+        this.stage.viewer.container.addEventListener(
+            'drop',
+            this.onDrop,
+            false
+        );
+        document.addEventListener(
+            'dragover',
+            function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'none';
+            },
+            false
+        );
         document.addEventListener('drop', this.onDrop, false);
 
         this.mouse = this.stage.mouseObserver;
         this.controls = this.stage.mouseControls;
 
         if (this.props.highlightAtomsOnClick) {
-            this.mouse.signals.clicked.add(this.onAtomClick, this)
+            this.mouse.signals.clicked.add(this.onAtomClick, this);
         }
 
         // CSS theme
@@ -74,49 +83,94 @@ export default class NGLComponent extends Component {
         // Window resizing
         this.stage.handleResize();
         // FIXME hack for ie11
-        setTimeout(function () { stage.handleResize() }, 500)
+        setTimeout(function() {
+            stage.handleResize();
+        }, 500);
     }
 
     componentDidUpdate(prevProps) {
-        const { data, selectedAtomIndices, activeComponentUUID } = this.props;
-        const { highlightParameters, stageParameters, queuedAction } = this.props;
-        const { addRepresentationParams, deleteRepresentationIndex } = this.props;
-
-        // load text if it's changed
-        if (prevProps.data !== data) {
-            setTimeout(this.loadData(data), 500)
-        }
-
-        // change active component
-        if (prevProps.activeComponentUUID !== activeComponentUUID) {
-            this.setActiveComponentByUUID(activeComponentUUID);
-        }
-
-        // add or delete representations
-        if (prevProps.addRepresentationParams !== addRepresentationParams) {
-            this.addRepresentation(...Object.values(addRepresentationParams));
-        }
-
-        if (prevProps.deleteRepresentationIndex !== deleteRepresentationIndex) {
-            this.removeRepresentationByIndex(deleteRepresentationIndex);
-        }
-
-        // change highlighted atoms
-        if ((prevProps.selectedAtomIndices !== selectedAtomIndices) ||
-            (prevProps.activeComponentUUID !== activeComponentUUID) ||
-            (prevProps.highlightParameters !== highlightParameters)) {
-            this.updateHighlightedAtoms();
-        }
+        const {queuedAction} = this.props;
 
         // execute queued action
         if (prevProps.queuedAction !== queuedAction) {
             this.executeQueuedAction(queuedAction.funcName, queuedAction.args);
         }
+    }
+
+    shouldComponentUpdate(nextProps) {
+        const {data, selectedAtomIndices, activeComponentUUID} = this.props;
+        const {highlightParameters, stageParameters, queuedAction} = this.props;
+        const {addRepresentationParams, deleteRepresentationIndex} = this.props;
+        const {highlightName} = this.props;
+
+        // load text if it's changed
+        if (nextProps.data !== data) {
+            setTimeout(this.loadData(nextProps.data), 500);
+        }
+
+        // change active component
+        if (nextProps.activeComponentUUID !== activeComponentUUID) {
+            this.setActiveComponentByUUID(nextProps.activeComponentUUID);
+        }
+
+        // add or delete representations
+        if (nextProps.addRepresentationParams !== addRepresentationParams) {
+            this.addRepresentation(
+                ...Object.values(nextProps.addRepresentationParams)
+            );
+        }
+
+        if (nextProps.deleteRepresentationIndex !== deleteRepresentationIndex) {
+            this.removeRepresentationByIndex(
+                nextProps.deleteRepresentationIndex
+            );
+        }
+
+        // change highlighted atoms
+        if (
+            nextProps.selectedAtomIndices !== selectedAtomIndices ||
+            nextProps.activeComponentUUID !== activeComponentUUID ||
+            nextProps.highlightParameters !== highlightParameters
+        ) {
+            this.updateHighlightedAtoms(
+                nextProps.activeComponentUUID,
+                nextProps.selectedAtomIndices,
+                nextProps.highlightParameters
+            );
+        }
+
+        // change highlight name
+        if (nextProps.highlightName !== highlightName) {
+            this.changeHighlightName(nextProps.highlightName);
+        }
+
+        // // execute queued action
+        if (nextProps.queuedAction !== queuedAction) {
+            return true;
+            // this.executeQueuedAction(
+            //     nextProps.queuedAction.funcName,
+            //     nextProps.queuedAction.args
+            // );
+        }
 
         // change stage
-        if (prevProps.stageParameters !== stageParameters) {
-            this.stage.setParameters(stageParameters)
+        if (nextProps.stageParameters !== stageParameters) {
+            this.stage.setParameters(nextProps.stageParameters);
+            this.refreshStage();
         }
+
+        return false;
+    }
+
+    changeHighlightName(name) {
+        const {highlightName, setProps} = this.props;
+        this.stage.eachRepresentation(repr => {
+            if (repr.name === highlightName) {
+                repr.setName(name);
+            }
+        });
+
+        setProps({highlightName: name});
     }
 
     executeQueuedAction(funcName, args) {
@@ -129,20 +183,20 @@ export default class NGLComponent extends Component {
     }
 
     setActiveComponentByUUID(uuid) {
-        const { setProps } = this.props;
+        const {setProps} = this.props;
         this.hideAllComponents();
         this.setComponentVisibility(true, uuid);
 
         const comp = this.getComponentByUUID(uuid);
         const reprs = this.getMainRepresentations(comp);
 
-        setProps({ currentRepresentationParameters: reprs });
+        setProps({currentRepresentationParameters: reprs});
     }
 
     getMainRepresentations(comp) {
         if (!comp) return [];
 
-        const { highlightName } = this.props;
+        const {highlightName} = this.props;
         const reprs = [];
         for (let i = 0; i < comp.reprList.length; i++) {
             let repr = comp.reprList[i];
@@ -151,18 +205,18 @@ export default class NGLComponent extends Component {
                 type: repr.repr.type,
                 sele: repr.repr.selection.string,
                 params: repr.getParameters(),
-            }
+            };
             reprs.push(reprParams);
             // }
         }
-        return reprs
+        return reprs;
     }
 
     onAtomClick(x, y) {
         // select atoms on click
 
         const pickingProxy = this.stage.pickingControls.pick(x, y);
-        const { setProps } = this.props;
+        const {setProps} = this.props;
 
         if (pickingProxy) {
             let atom = pickingProxy._objectIfType('atom');
@@ -178,52 +232,53 @@ export default class NGLComponent extends Component {
                     newselectedAtomIndices.push(id);
                 }
 
-                setProps({ selectedAtomIndices: newselectedAtomIndices });
+                setProps({selectedAtomIndices: newselectedAtomIndices});
             }
         }
     }
 
     loadData(data) {
         if (!data.config) {
-            return
+            return;
         }
-        var stringBlob = new Blob([data.config.input], { type: data.config.type })
-        this.stage.loadFile(stringBlob, { ext: data.ext }).then(comp => {
+        var stringBlob = new Blob([data.config.input], {
+            type: data.config.type,
+        });
+        this.stage.loadFile(stringBlob, {ext: data.ext}).then(comp => {
             this.loadComponent(comp);
-
-        })
-
+        });
     }
 
     loadComponent(comp) {
-        const { setProps } = this.props;
+        const {setProps} = this.props;
         this.hideAllComponents();
-        comp.addRepresentation('ball+stick',
-            {
-                sele: 'all',
-                visible: true,
-            });
+        comp.addRepresentation('ball+stick', {
+            sele: 'all',
+            visible: true,
+        });
         this.addHighlightRepresentation(comp);
-        const reprs = this.getMainRepresentations(comp)
+        const reprs = this.getMainRepresentations(comp);
         this.stage.autoView();
 
         setProps({
             activeComponentUUID: comp.uuid,
             data: {},
             numberOfComponents: this.stage.compList.length,
-            currentRepresentationParameters: reprs
+            currentRepresentationParameters: reprs,
         });
     }
 
     addHighlightRepresentation(comp) {
-        const { highlightName, highlightParameters } = this.props;
+        const {highlightName, highlightParameters} = this.props;
 
-        const style = { ...defaultHighlightParameters, ...highlightParameters };
+        const style = {...defaultHighlightParameters, ...highlightParameters};
         // highlight representation
         comp.addRepresentation('ball+stick', {
             sele: '@',
             visible: true,
-        }).setName(highlightName).setParameters(style);
+        })
+            .setName(highlightName)
+            .setParameters(style);
 
         this.refreshStage();
     }
@@ -231,7 +286,7 @@ export default class NGLComponent extends Component {
     addRepresentation(type, params, index, suppressProps) {
         if (!type) return;
 
-        const { activeComponentUUID, setProps } = this.props;
+        const {activeComponentUUID, setProps} = this.props;
         const comp = this.getComponentByUUID(activeComponentUUID);
         if (!comp) return;
         const repr = comp.addRepresentation(type, params);
@@ -245,13 +300,13 @@ export default class NGLComponent extends Component {
         const reprs = this.getMainRepresentations(comp);
         setProps({
             addRepresentationParams: {},
-            currentRepresentationParameters: reprs
+            currentRepresentationParameters: reprs,
         });
     }
 
     removeRepresentationByName(name) {
         if (!name) return;
-        const { activeComponentUUID, setProps } = this.props;
+        const {activeComponentUUID, setProps} = this.props;
         const comp = this.getComponentByUUID(activeComponentUUID);
         if (!comp) return;
 
@@ -267,14 +322,14 @@ export default class NGLComponent extends Component {
         const reprs = this.getMainRepresentations(comp);
         setProps({
             deleteRepresentationIndex: undefined,
-            currentRepresentationParameters: reprs
+            currentRepresentationParameters: reprs,
         });
     }
 
     removeRepresentationByIndex(index) {
         if (index === undefined) return;
 
-        const { activeComponentUUID, setProps } = this.props;
+        const {activeComponentUUID, setProps} = this.props;
         const comp = this.getComponentByUUID(activeComponentUUID);
         if (!comp) return;
         if (index <= -1 || index > comp.reprList.length) return;
@@ -286,12 +341,12 @@ export default class NGLComponent extends Component {
         const reprs = this.getMainRepresentations(comp);
         setProps({
             currentRepresentationParameters: reprs,
-            deleteRepresentationIndex: undefined
+            deleteRepresentationIndex: undefined,
         });
     }
 
     updateRepresentationTypeByIndex(index, newType, asQueuedAction) {
-        const { activeComponentUUID, setProps } = this.props;
+        const {activeComponentUUID, setProps} = this.props;
         const comp = this.getComponentByUUID(activeComponentUUID);
         if (!comp) return;
         if (index <= -1 || index > comp.reprList.length) return;
@@ -306,22 +361,39 @@ export default class NGLComponent extends Component {
         if (asQueuedAction) {
             setProps({
                 currentRepresentationParameters: reprs,
-                queuedAction: {}
-            })
+                queuedAction: {},
+            });
         } else {
-            setProps({ currentRepresentationParameters: reprs });
+            setProps({currentRepresentationParameters: reprs});
         }
     }
 
     updateRepresentationParamsByIndex(index, params, asQueuedAction) {
-        const { activeComponentUUID, setProps } = this.props;
+        const {activeComponentUUID, setProps} = this.props;
         const comp = this.getComponentByUUID(activeComponentUUID);
         if (!comp) return;
         if (index <= -1 || index > comp.reprList.length) return;
 
         const repr = comp.reprList[index];
-        repr.repr.selection.setString(params.sele, false);
-        repr.setParameters(params);
+        if (params.sele !== undefined) {
+            repr.repr.selection.setString(params.sele, false);
+        }
+
+        const newParams = repr.getParameters();
+        console.log(repr.bufferList);
+
+        const validParams = {};
+
+        Object.keys(params).forEach(function(key) {
+            if (key === 'color') {
+                validParams['color'] = params[key];
+                return;
+            }
+            if (!repr.repr.parameters[key]) return;
+            validParams[key] = params[key];
+        });
+        console.log(validParams);
+        repr.setParameters(validParams);
         this.refreshStage();
 
         const reprs = this.getMainRepresentations(comp);
@@ -329,35 +401,35 @@ export default class NGLComponent extends Component {
         if (asQueuedAction) {
             setProps({
                 currentRepresentationParameters: reprs,
-                queuedAction: {}
+                queuedAction: {},
             });
         } else {
-            setProps({ currentRepresentationParameters: reprs });
+            setProps({currentRepresentationParameters: reprs});
         }
     }
 
     updateRepresentations(params) {
-        const { activeComponentUUID, setProps } = this.props;
+        const {activeComponentUUID, setProps} = this.props;
         const comp = this.getComponentByUUID(activeComponentUUID);
 
-        comp.updateRepresentations(params)
+        comp.updateRepresentations(params);
 
         const reprs = this.getMainRepresentations(comp);
-        setProps({ currentRepresentationParameters: reprs });
+        setProps({currentRepresentationParameters: reprs});
     }
 
     removeAllRepresentationsFromComponent() {
-        const { activeComponentUUID, setProps } = this.props;
+        const {activeComponentUUID, setProps} = this.props;
         const comp = this.getComponentByUUID(activeComponentUUID);
 
-        comp.removeAllRepresentations()
+        comp.removeAllRepresentations();
 
         const reprs = this.getMainRepresentations(comp);
-        setProps({ currentRepresentationParameters: reprs });
+        setProps({currentRepresentationParameters: reprs});
     }
 
     removeComponentByUUID(uuid) {
-        const { setProps } = this.props;
+        const {setProps} = this.props;
 
         function remove(comp) {
             if (comp.uuid === uuid) {
@@ -368,7 +440,7 @@ export default class NGLComponent extends Component {
         setProps({
             numberOfComponents: this.stage.compList.length,
             activeComponentUUID: undefined,
-            currentRepresentationParameters: []
+            currentRepresentationParameters: [],
         });
     }
 
@@ -376,13 +448,15 @@ export default class NGLComponent extends Component {
         for (let i = 0; i < this.stage.compList.length; i++) {
             let comp = this.stage.compList[i];
             if (comp.uuid === uuid) {
-                return comp
+                return comp;
             }
         }
     }
 
     hideAllComponents() {
-        this.stage.eachComponent((comp) => { comp.setVisibility(false) })
+        this.stage.eachComponent(comp => {
+            comp.setVisibility(false);
+        });
     }
 
     setComponentVisibility(visible, uuid) {
@@ -391,17 +465,17 @@ export default class NGLComponent extends Component {
         }
 
         this.stage.eachComponent(comp => {
-            if (comp.uuid === uuid) { comp.setVisibility(visible) }
+            if (comp.uuid === uuid) {
+                comp.setVisibility(visible);
+            }
         });
     }
 
-    updateHighlightedAtoms() {
+    updateHighlightedAtoms(uuid, indices, highlightParameters) {
+        const {highlightName} = this.props;
 
-        const { activeComponentUUID, highlightName } = this.props;
-        const { highlightParameters, selectedAtomIndices } = this.props;
-
-        const sele = '@' + selectedAtomIndices.toString();
-        const comp = this.getComponentByUUID(activeComponentUUID);
+        const sele = '@' + indices.toString();
+        const comp = this.getComponentByUUID(uuid);
 
         if (comp === undefined) return;
 
@@ -423,7 +497,7 @@ export default class NGLComponent extends Component {
 const defaultViewportStyle = {
     width: '500px',
     height: '500px',
-}
+};
 
 const defaultStageParameters = {
     impostor: true,
@@ -448,16 +522,16 @@ const defaultStageParameters = {
     ambientIntensity: 0.2,
     hoverTimeout: 0,
     tooltip: true,
-    mousePreset: 'default'
-}
+    mousePreset: 'default',
+};
 
 const defaultHighlightParameters = {
     opacity: 0.5,
     bondScale: 1.4,
     scale: 1.4,
     colorScheme: 'uniform',
-    color: '#fff'
-}
+    color: '#fff',
+};
 
 // ╔═══*.·:·.☽✧  ✦  ✦  ✦  ✦  ✧☾.·:·.*═══╗
 // ║            Prop shapes             ║
@@ -468,14 +542,14 @@ const dataPropShape = {
     ext: PropTypes.string,
     config: PropTypes.shape({
         type: PropTypes.string.isRequired,
-        input: PropTypes.string.isRequired
-    })
+        input: PropTypes.string.isRequired,
+    }),
 };
 
 const reprParamPropShape = {
     type: PropTypes.string.isRequired,
-    params: PropTypes.object
-}
+    params: PropTypes.object,
+};
 
 NGLComponent.defaultProps = {
     id: 'viewport',
@@ -560,19 +634,19 @@ NGLComponent.propTypes = {
     /**
      * Representation parameters of active component
      */
-    currentRepresentationParameters: PropTypes.arrayOf(PropTypes.shape(reprParamPropShape)),
+    currentRepresentationParameters: PropTypes.arrayOf(
+        PropTypes.shape(reprParamPropShape)
+    ),
 
     /**
      * Representation to add
      */
     addRepresentationParams: PropTypes.oneOfType([
         PropTypes.shape(reprParamPropShape),
-        PropTypes.object
+        PropTypes.object,
     ]),
     /**
      * Representation to delete
      */
     deleteRepresentationIndex: PropTypes.number,
-
 };
-

@@ -459,7 +459,8 @@ def get_queued_action(repr_type, color_scheme, sele, index, params):
 
     action = {'funcName': 'updateRepresentationParamsByIndex',
               'args': {'index': index,
-                       'params': {'colorScheme': color_scheme,
+                       'params': {'colorValue': '#fff',
+                                  'colorScheme': color_scheme,
                                   'sele': sele}}}
     return action
 
