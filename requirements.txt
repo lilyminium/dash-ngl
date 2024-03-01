@@ -2,6 +2,6 @@ dash==1.7.0
 dash-bootstrap-components==0.8.1
 dash-core-components==1.6.0
 dash-daq==0.3.3
-dash-html-components==1.0.2
+dash-html-components==2.0.0
 dash-renderer==1.2.2
 dash-table==4.5.1
